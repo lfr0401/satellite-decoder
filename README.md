@@ -1,95 +1,104 @@
-# Satellite Decoder – LRPT (Meteor-M2)
+# 卫星信号解码器 —— LRPT（Meteor-M2）
 
-This repository contains a prototype software receiver for LRPT signals transmitted by the Russian Earth observation satellites of the Meteor-M2 series.
-The project was developed as part of the university module Funksysteme at Technische Universität Berlin and demonstrates a complete digital satellite reception chain, from complex baseband samples to reconstructed Earth observation images.
-The focus of this work is a transparent MATLAB implementation of the physical-layer and data-link-layer processing steps based on CCSDS standards.
+本仓库包含一个 LRPT 信号的软件接收机原型，用于接收俄罗斯 Meteor-M2 系列对地观测卫星下发的信号。
+该项目是柏林工业大学（Technische Universität Berlin）"Funksysteme"课程的课程设计成果，完整演示了从复基带采样到还原出对地观测图像的整条数字卫星接收链路。
+实现重点是物理层与数据链路层处理步骤的透明化 MATLAB 实现，遵循 CCSDS 标准。
 
-## Project Scope
-LRPT (Low Rate Picture Transmission) is a digital downlink used by Meteor-M2 satellites to transmit multispectral Earth imagery.  
-This project implements the core signal processing and decoding steps required to recover image data from recorded LRPT signals.
+## 项目范围
 
-Implemented functionality includes:
-- Carrier and symbol synchronization  
-- QPSK demodulation  
-- Channel decoding according to CCSDS  
-- Frame synchronization and parsing  
-- JPEG-like image reconstruction  
-- Visualization of intermediate and final results  
+LRPT（Low Rate Picture Transmission，低速率图像传输）是 Meteor-M2 卫星用于下传多光谱对地图像的数字链路。
+本项目实现了从录制的 LRPT 信号中恢复图像数据所需的核心信号处理与解码步骤。
+
+已实现的功能包括：
+- 载波与符号同步
+- QPSK 解调
+- 遵循 CCSDS 标准的信道译码
+- 帧同步与解析
+- 类 JPEG 图像重建
+- 中间结果与最终结果的可视化
 
 ---
 
-## Signal Processing Chain
+## 信号处理链路
 
-The receiver architecture follows the processing pipeline below:
+接收机的处理流程如下：
 
-1. IQ Input:
-    - Complex baseband samples (e.g. from SDR recordings)
-2. Carrier Recovery & Filtering
-   - Frequency and phase correction  
-   - Root-Raised-Cosine filtering
-3. Demodulation
-   - QPSK demodulation  
-   - Symbol timing recovery
-4. Frame Synchronization
-   - Detection of the Attached Sync Marker (ASM)
-5. Channel Decoding
-   - Viterbi decoding (convolutional code)  
-   - Reed-Solomon decoding  
-   - CCSDS derandomization
-6. Packet and Image Processing
-   - LRPT frame parsing  
-   - JPEG-like decompression  
+1. **IQ 输入**
+   - 复基带采样数据（例如来自 SDR 的录音）
+2. **载波恢复与滤波**
+   - 频率与相位校正
+   - 根升余弦（Root-Raised-Cosine）滤波
+3. **解调**
+   - QPSK 解调
+   - 符号定时恢复
+4. **帧同步**
+   - 检测附加同步码（ASM, Attached Sync Marker）
+5. **信道译码**
+   - Viterbi 译码（卷积码）
+   - Reed-Solomon 译码
+   - CCSDS 去随机化（derandomization）
+6. **包处理与图像处理**
+   - LRPT 帧解析
+   - 类 JPEG 解压缩
 
-## Standards and References
-The implementation is based on the following standards and specifications:
-- CCSDS 131.0-B – TM Synchronization and Channel Coding  
-- CCITT T.81 / ISO/IEC 10918-1 – JPEG Baseline DCT  
-- Publicly available documentation of the Meteor-M2 LRPT protocol  
-All relevant standards and theoretical background are discussed in detail in the accompanying project report.
+## 标准与参考资料
 
-## Repository Structure
+实现基于以下标准与规范：
+- CCSDS 131.0-B —— 遥测同步与信道编码
+- CCITT T.81 / ISO/IEC 10918-1 —— JPEG 基线 DCT
+- 公开的 Meteor-M2 LRPT 协议文档
+
+所有相关标准与理论背景在配套的项目报告中有详细讨论。
+
+## 仓库结构
 
 ```text
 .
 ├── src/
-│   ├── constellation.m
-│   ├── decode.m
-│   ├── demod.m
-│   ├── extraction.m
-│   ├── getconfig.m
-│   ├── huffman.m
-│   ├── jpegdecoding.m
-│   ├── qualitycheck.m
-│   └── reedsolomon.m
+│   ├── constellation.m    星座图与相关同步
+│   ├── decode.m           Viterbi 译码与解扰
+│   ├── demod.m            QPSK 解调与同步
+│   ├── extraction.m       帧与包提取
+│   ├── getconfig.m        参数配置（采样率、符号率、滤波器等）
+│   ├── huffman.m          Huffman 解码
+│   ├── jpegdecoding.m     类 JPEG 图像解码
+│   ├── qualitycheck.m     信号质量检查（功率谱、瀑布图等）
+│   └── reedsolomon.m      Reed-Solomon 纠错
 │
 ├── data/
-│   ├── meteor_m2_72k.wav # example recording
-│   ├── report.pdf
-│   ├── presentation.pdf
-│   └── plots/
+│   ├── meteor_m2_72k.wav  示例录音（IQ 采样）
+│   ├── report.pdf         项目报告
+│   ├── presentation.pdf   答辩演示文稿
+│   └── plots/             各处理阶段的输出图
 │
-├── main.m
+├── main.m                 程序入口
 └── README.md
 ```
 
-## Requirements
-- MATLAB (recommended: R2022b or newer)
+## 环境要求
+
+- MATLAB（建议 R2022b 或更新版本）
 - Image Processing Toolbox
 - Communications Toolbox
 
-Optional:
-- SDR hardware (e.g. RTL-SDR) for recording custom IQ data
+可选：
+- SDR 硬件（如 RTL-SDR），用于自行录制 IQ 数据
 
-## Usage
-	1.	Place IQ recordings in data/ folder
-	2.	Run the main `main.m`
+> 注：仓库中不包含示例录音 `data/meteor_m2_72k.wav`，需自行准备 IQ 数据并放到 `data/` 目录下。
 
-All relevant parameters (sampling rate, symbol rate, filters) are documented in the `getconfig.m` and can be changed accordingly in the source code.
+## 使用方法
 
-## Authors
+1. 将 IQ 录音文件放到 `data/` 目录
+2. 运行主程序 `main.m`
+
+所有相关参数（采样率、符号率、滤波器等）都在 `getconfig.m` 中有说明，可在源码中按需修改。
+
+## 作者
+
 Anton Valentin Dilg, Ramin Leon Neymeyer, Ramon Rennert, Steffen August Sigwart
 
-Technische Universität Berlin, Faculty of Electrical Engineering and Computer Science
+柏林工业大学 电气工程与计算机科学学院
 
-## License
-This project is licensed under the MIT License.
+## 许可证
+
+本项目采用 MIT 许可证。
