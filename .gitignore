@@ -1,0 +1,5 @@
+data/*.wav
+data/*.pdf
+data/plots/*.pdf
+*.m~
+*.asv
